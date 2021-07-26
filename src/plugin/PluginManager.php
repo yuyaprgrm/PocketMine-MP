@@ -446,37 +446,51 @@ class PluginManager{
 	 * completely. Invalid annotations on candidate listener methods should result in an error, so those aren't checked
 	 * here.
 	 *
-	 * @phpstan-return class-string<Event>|null
+	 * @phpstan-return list<class-string<Event>>
 	 */
-	private function getEventsHandledBy(\ReflectionMethod $method) : ?string{
+	private function getEventsHandledBy(\ReflectionMethod $method) : array{
 		if($method->isStatic() or !$method->getDeclaringClass()->implementsInterface(Listener::class)){
-			return null;
+			return [];
 		}
 		$tags = Utils::parseDocComment((string) $method->getDocComment());
 		if(isset($tags[ListenerMethodTags::NOT_HANDLER])){
-			return null;
+			return [];
 		}
 
 		$parameters = $method->getParameters();
 		if(count($parameters) !== 1){
-			return null;
+			return [];
 		}
 
 		$paramType = $parameters[0]->getType();
-		//isBuiltin() returns false for builtin classes ..................
-		if(!$paramType instanceof \ReflectionNamedType || $paramType->isBuiltin()){
-			return null;
+
+		if($paramType instanceof \ReflectionUnionType){
+			$paramTypes = $paramType->getTypes();
+		}elseif($paramType instanceof \ReflectionNamedType){
+			$paramTypes = [$paramType];
+		}else{
+			return [];
 		}
 
-		/** @phpstan-var class-string $paramClass */
-		$paramClass = $paramType->getName();
-		$eventClass = new \ReflectionClass($paramClass);
-		if(!$eventClass->isSubclassOf(Event::class)){
-			return null;
+		$eventClasses = [];
+		foreach($paramTypes as $type){
+			//isBuiltin() returns false for builtin classes ..................
+			if($type->isBuiltin()){
+				return [];
+			}
+
+			/** @phpstan-var class-string $paramClass */
+			$paramClass = $type->getName();
+			$eventClass = new \ReflectionClass($paramClass);
+			if(!$eventClass->isSubclassOf(Event::class)){
+				return [];
+			}
+
+			/** @var \ReflectionClass<Event> $eventClass */
+			$eventClasses[] = $eventClass->getName();
 		}
 
-		/** @var \ReflectionClass<Event> $eventClass */
-		return $eventClass->getName();
+		return $eventClasses;
 	}
 
 	/**
@@ -492,7 +506,7 @@ class PluginManager{
 		$reflection = new \ReflectionClass(get_class($listener));
 		foreach($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method){
 			$tags = Utils::parseDocComment((string) $method->getDocComment());
-			if(isset($tags[ListenerMethodTags::NOT_HANDLER]) || ($eventClass = $this->getEventsHandledBy($method)) === null){
+			if(isset($tags[ListenerMethodTags::NOT_HANDLER]) || count($eventClasses = $this->getEventsHandledBy($method)) === 0){
 				continue;
 			}
 			$handlerClosure = $method->getClosure($listener);
@@ -518,7 +532,9 @@ class PluginManager{
 				}
 			}
 
-			$this->registerEvent($eventClass, $handlerClosure, $priority, $plugin, $handleCancelled);
+			foreach($eventClasses as $eventClass){
+				$this->registerEvent($eventClass, $handlerClosure, $priority, $plugin, $handleCancelled);
+			}
 		}
 	}
 
