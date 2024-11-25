@@ -403,7 +403,7 @@ final class Utils{
 	}
 
 	/**
-	 * @param mixed[] $trace
+	 * @param mixed[][] $trace
 	 * @return string[]
 	 */
 	public static function printableExceptionInfo(\Throwable $e, $trace = null) : array{
