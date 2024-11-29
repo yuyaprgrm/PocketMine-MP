@@ -47,7 +47,6 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\player\Player;
-use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Utils;
 use pocketmine\world\format\io\GlobalItemDataHandlers;
 use function base64_decode;
@@ -106,7 +105,6 @@ class Item implements \JsonSerializable{
 	protected bool $keepOnDeath = false;
 
 	protected ?ItemLockMode $lockMode = null;
-
 
 	/**
 	 * Constructs a new Item type. This constructor should ONLY be used when constructing a new item TYPE to register
@@ -357,8 +355,8 @@ class Item implements \JsonSerializable{
 		$this->keepOnDeath = $tag->getByte(self::TAG_KEEP_ON_DEATH, 0) !== 0;
 
 		$this->lockMode = match($tag->getByte(self::TAG_ITEM_LOCK, 0)){
-			self::VALUE_ITEM_LOCK_IN_SLOT => ItemLockMode::SLOT(),
-			self::VALUE_ITEM_LOCK_IN_INVENTORY => ItemLockMode::INVENTORY(),
+			self::VALUE_ITEM_LOCK_IN_SLOT => ItemLockMode::SLOT,
+			self::VALUE_ITEM_LOCK_IN_INVENTORY => ItemLockMode::INVENTORY,
 			default => null
 		};
 	}
@@ -430,10 +428,9 @@ class Item implements \JsonSerializable{
 			$tag->removeTag(self::TAG_KEEP_ON_DEATH);
 		}
 		if($this->lockMode !== null){
-			$tag->setByte(self::TAG_ITEM_LOCK, match($this->lockMode->id()){
-				ItemLockMode::SLOT()->id() => self::VALUE_ITEM_LOCK_IN_SLOT,
-				ItemLockMode::INVENTORY()->id() => self::VALUE_ITEM_LOCK_IN_INVENTORY,
-				default => throw new AssumptionFailedError("Unknown lock mode")
+			$tag->setByte(self::TAG_ITEM_LOCK, match($this->lockMode){
+				ItemLockMode::SLOT => self::VALUE_ITEM_LOCK_IN_SLOT,
+				ItemLockMode::INVENTORY => self::VALUE_ITEM_LOCK_IN_INVENTORY,
 			});
 		}else{
 			$tag->removeTag("minecraft:item_lock");
