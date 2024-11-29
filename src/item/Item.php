@@ -26,7 +26,6 @@ declare(strict_types=1);
  */
 namespace pocketmine\item;
 
-use LogicException;
 use pocketmine\block\Block;
 use pocketmine\block\BlockBreakInfo;
 use pocketmine\block\BlockToolType;
@@ -47,7 +46,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\TreeRoot;
-use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Utils;
@@ -76,7 +74,7 @@ class Item implements \JsonSerializable{
 
 	public const TAG_KEEP_ON_DEATH = "minecraft:keep_on_death";
 
-  public const VALUE_ITEM_LOCK_IN_SLOT = 1;
+	public const VALUE_ITEM_LOCK_IN_SLOT = 1;
 	public const VALUE_ITEM_LOCK_IN_INVENTORY = 2;
 
 	private const TAG_CAN_PLACE_ON = "CanPlaceOn"; //TAG_List<TAG_String>
