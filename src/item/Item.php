@@ -73,8 +73,8 @@ class Item implements \JsonSerializable{
 
 	public const TAG_KEEP_ON_DEATH = "minecraft:keep_on_death";
 
-	public const VALUE_ITEM_LOCK_IN_SLOT = 1;
-	public const VALUE_ITEM_LOCK_IN_INVENTORY = 2;
+	private const VALUE_ITEM_LOCK_IN_SLOT = 1;
+	private const VALUE_ITEM_LOCK_IN_INVENTORY = 2;
 
 	private const TAG_CAN_PLACE_ON = "CanPlaceOn"; //TAG_List<TAG_String>
 	private const TAG_CAN_DESTROY = "CanDestroy"; //TAG_List<TAG_String>
