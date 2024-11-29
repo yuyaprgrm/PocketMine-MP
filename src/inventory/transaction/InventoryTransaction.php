@@ -211,14 +211,16 @@ class InventoryTransaction{
 		$this->computeDiff($needItems, $haveItems);
 
 		if(count($boundLockedNeedItems) > 0 || count($boundLockedHaveItems) > 0){
-			//first, try to balance bound locked items with items already bound to the player's inventory
+			//try to balance bound locked items with items already bound to the player's inventory
 			$this->computeDiff($boundLockedNeedItems, $boundLockedHaveItems);
-			//then, check if there are unbound locked items the player moved into its inventory
+			if(count($boundLockedHaveItems) > 0){
+				throw new TransactionValidationException("Player tried to remove locked items from their inventory");
+			}
+
+			//check if there are unbound locked items the player moved into its inventory
 			//this allows moving locked items from e.g. a chest -> player's inventory, but not the other way round
 			$this->computeDiff($boundLockedNeedItems, $haveItems);
-
 			array_push($needItems, ...$boundLockedNeedItems);
-			array_push($haveItems, ...$boundLockedHaveItems);
 		}
 	}
 
