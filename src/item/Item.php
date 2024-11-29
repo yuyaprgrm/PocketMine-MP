@@ -433,7 +433,7 @@ class Item implements \JsonSerializable{
 				ItemLockMode::INVENTORY => self::VALUE_ITEM_LOCK_IN_INVENTORY,
 			});
 		}else{
-			$tag->removeTag("minecraft:item_lock");
+			$tag->removeTag(self::TAG_ITEM_LOCK);
 		}
 	}
 
