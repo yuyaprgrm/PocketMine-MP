@@ -76,7 +76,7 @@ class SlotChangeAction extends InventoryAction{
 		if($this->targetItem->getCount() > $this->inventory->getMaxStackSize()){
 			throw new TransactionValidationException("Target item exceeds inventory max stack size");
 		}
-		if($this->sourceItem->getLockMode() === ItemLockMode::SLOT && $this->inventory instanceof PlayerInventory){
+		if($this->sourceItem->getLockMode() === ItemLockMode::PLAYER_INVENTORY_SLOT && $this->inventory instanceof PlayerInventory){
 			throw new TransactionValidationException("Source item is locked in slot");
 		}
 		if($this->inventory instanceof SlotValidatedInventory && !$this->targetItem->isNull()){

@@ -30,6 +30,7 @@ use pocketmine\inventory\PlayerInventory;
 use pocketmine\inventory\transaction\action\InventoryAction;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\item\Item;
+use pocketmine\item\ItemLockMode;
 use pocketmine\player\Player;
 use pocketmine\utils\Utils;
 use function array_keys;
@@ -185,7 +186,7 @@ class InventoryTransaction{
 				(($inventory = $action->getInventory()) instanceof PlayerInventory || $inventory instanceof PlayerCursorInventory);
 			$targetItem = $action->getTargetItem();
 			if(!$targetItem->isNull()){
-				if($checkBoundLockedItem && $targetItem->getLockMode() !== null){
+				if($checkBoundLockedItem && $targetItem->getLockMode() !== ItemLockMode::NONE){
 					$boundLockedNeedItems[] = $targetItem;
 				}else{
 					$needItems[] = $targetItem;
@@ -200,7 +201,7 @@ class InventoryTransaction{
 
 			$sourceItem = $action->getSourceItem();
 			if(!$sourceItem->isNull()){
-				if($checkBoundLockedItem && $sourceItem->getLockMode() !== null){
+				if($checkBoundLockedItem && $sourceItem->getLockMode() !== ItemLockMode::NONE){
 					$boundLockedHaveItems[] = $sourceItem;
 				}else{
 					$haveItems[] = $sourceItem;

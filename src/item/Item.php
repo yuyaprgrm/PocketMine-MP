@@ -104,7 +104,7 @@ class Item implements \JsonSerializable{
 
 	protected bool $keepOnDeath = false;
 
-	protected ?ItemLockMode $lockMode = null;
+	protected ItemLockMode $lockMode = ItemLockMode::NONE;
 
 	/**
 	 * Constructs a new Item type. This constructor should ONLY be used when constructing a new item TYPE to register
@@ -233,11 +233,17 @@ class Item implements \JsonSerializable{
 		}
 	}
 
-	public function getLockMode() : ?ItemLockMode{
+	/**
+	 * Returns how the movement of this item will be restricted when in a player's inventory.
+	 */
+	public function getLockMode() : ItemLockMode{
 		return $this->lockMode;
 	}
 
-	public function setLockMode(?ItemLockMode $lockMode) : self{
+	/**
+	 * Sets how the movement of this item will be restricted when in a player's inventory.
+	 */
+	public function setLockMode(ItemLockMode $lockMode) : self{
 		$this->lockMode = $lockMode;
 		return $this;
 	}
@@ -355,9 +361,9 @@ class Item implements \JsonSerializable{
 		$this->keepOnDeath = $tag->getByte(self::TAG_KEEP_ON_DEATH, 0) !== 0;
 
 		$this->lockMode = match($tag->getByte(self::TAG_ITEM_LOCK, 0)){
-			self::VALUE_ITEM_LOCK_IN_SLOT => ItemLockMode::SLOT,
-			self::VALUE_ITEM_LOCK_IN_INVENTORY => ItemLockMode::INVENTORY,
-			default => null
+			self::VALUE_ITEM_LOCK_IN_SLOT => ItemLockMode::PLAYER_INVENTORY_SLOT,
+			self::VALUE_ITEM_LOCK_IN_INVENTORY => ItemLockMode::PLAYER_INVENTORY,
+			default => ItemLockMode::NONE
 		};
 	}
 
@@ -427,10 +433,10 @@ class Item implements \JsonSerializable{
 		}else{
 			$tag->removeTag(self::TAG_KEEP_ON_DEATH);
 		}
-		if($this->lockMode !== null){
+		if($this->lockMode !== ItemLockMode::NONE){
 			$tag->setByte(self::TAG_ITEM_LOCK, match($this->lockMode){
-				ItemLockMode::SLOT => self::VALUE_ITEM_LOCK_IN_SLOT,
-				ItemLockMode::INVENTORY => self::VALUE_ITEM_LOCK_IN_INVENTORY,
+				ItemLockMode::PLAYER_INVENTORY_SLOT => self::VALUE_ITEM_LOCK_IN_SLOT,
+				ItemLockMode::PLAYER_INVENTORY => self::VALUE_ITEM_LOCK_IN_INVENTORY,
 			});
 		}else{
 			$tag->removeTag(self::TAG_ITEM_LOCK);
